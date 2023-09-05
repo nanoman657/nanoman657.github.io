@@ -51,7 +51,7 @@ else:
 ### Using `argparse` to Regulate Types
  When we check the types, an area of improvement is quickly identified. I use mypy to type check my code, and running `mypy pluralize.py` in the terminal yields an error indicating that the type assignment is incompatible:
  
-  `error: Incompatible types in assignment (expression has type "Union[Literal['pie', 'pastry'], str]", variable has type "Literal['pie', 'pastry']")  [assignment]`
+  > error: Incompatible types in assignment (expression has type "Union[Literal['pie', 'pastry'], str]", variable has type "Literal['pie', 'pastry']")  [assignment]
   
   There are two reasons for this. First, the mypy `reveal_type` function reveals that get_args returns Any. That effectively means we we cannot infer the types of values coming from get_args. Secondly, there is no way to convert `raw_word` into a `SingularWord`, since `SingularWord` is just a type hint, and not a data type evaluated at runtime like `int`.
 
@@ -86,8 +86,8 @@ In short, `arguments` is a `Namespace`, so any values extracted from it will nee
 from argparse import Namespace
 
 
-singular_word: TypeAlias = Literal["pie", "pastry"]
-plural_word: TypeAlias = Literal["pies", "pastries"]
+SingularWord: TypeAlias = Literal["pie", "pastry"]
+PluralWord: TypeAlias = Literal["pies", "pastries"]
 
 
 class PluralizeNamespace(Namespace):
@@ -101,7 +101,7 @@ We simply need to specify that our custom namespace will be used in lieu of the 
 arguments: Namespace = parser.parse_args(namespace=PluralizeNamespace)
 ```
 
-Now, if you try to reveal the type of `arguments.quantity` and `arguments.word`, they will be `int` and `singular_word`, which is exactly what we want.
+Now, if you try to reveal the type of `arguments.quantity` and `arguments.word`, they will be `int` and `SingularWord`, which is exactly what we want.
 
 ### Conclusion
 Typing hinting is an immensely helpful feature of python that powers mypy's ability to statically check the types used in code. The practice becomes more complex when using command line arguments as input to functions, since the inputs are up to the user. `argparse` is an excellent module for constraining the arguments to values usable by your code. When you combine `ArgumentParser` with your own typed custom `Namespace` the entire code can be completely typed.
