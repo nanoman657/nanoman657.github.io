@@ -1,6 +1,7 @@
 ---
 layout: post
 title: "How to Create a Google Cloud Run Serverless Job"
+thumbnail-img: https://storage.googleapis.com/gweb-cloudblog-publish/original_images/Cloud_Run.jpg
 tags:
   - python
   - Docker
