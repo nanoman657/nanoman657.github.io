@@ -8,7 +8,7 @@ tags:
   - Serverless-Computing
   - Tutorial
 ---
-Serverless computing is an excellent approach when you just want to run simple code on the cloud. without needing to consider hardware scaling. This tutorial shows how you can easily deploy code to Google Cloud Run with Docker and Python. Before you start, make sure that you have Docker Desktop and the gcloud CLI installed. You can check the [[#Learning Resources]] section for more info on how to do that.
+Serverless computing is an excellent approach when you just want to run simple code on the cloud. without needing to consider hardware scaling. This tutorial shows how you can easily deploy code to Google Cloud Run with Docker and Python. Before you start, make sure that you have Docker Desktop and the gcloud CLI installed. You can check the [Learning Resources](#learning-resources) section for more info on how to do that.
 
 ### **Create the Project Structure**
    This project structure will contain all of the files we need to create our microservice.
