@@ -6,8 +6,7 @@ tags:
   - SQL
   - Google-BigQuery
   - Data-Engineering
-  - Data
-  - Warehousing
+  - Data-Warehousing
   - Databases
 ---
 "Don't Repeat Yourself" (DRY) is one of the most famous adages in software development. The principle advises us not to represent information in multiple places. Data warehouses present a challenge to applying the DRY, because they inherently allow for the possibility of duplicate records. How then do we tackle the problem of duplicates?
@@ -43,7 +42,7 @@ Keys play a pivotal role in defining uniqueness within a table. An excellent ove
 
 >The first type of key you establish for a table is the candidate key, which is a field or set of fields that uniquely identifies a single instance of the table’s subject. Each table must have at least one candidate key. You’ll eventually examine the table’s pool of available candidate keys and designate one of them as the official primary key for the table.
 
-In our example, the combination of `first_name` and `last_name` serves as the primary key. This means that even if someone changes their favorite color, they remain the same person. 
+The primary key is the principal means we have of identifying single instances of our table's subject. In our example, the combination of `first_name` and `last_name` serves as the primary key, since there is no other candidate key. This means that even if someone changes their favorite color, we still consider them to be the same person. 
 
 One interesting facet about Data Warehouses is that they privilege data ingestion over uniqueness. In other words, they focus on getting data *into* tables more than they do preventing duplicates. If you read the Google BigQuery blog, you'll find that although you can specify record keys, [Google BigQuery does not enforce them](https://cloud.google.com/blog/products/data-analytics/join-optimizations-with-bigquery-primary-and-foreign-keys/#:~:text=The%20user%20must%20use%20the%20NOT%20ENFORCED%20qualifier%20when%20defining%20constraints%20as%20enforcement%20is%20not%20supported%20by%20BigQuery%20at%20this%20time.). This is clearly a violation of Hernandez's rule regarding keys. If we want to impose keys on our data warehouse tables, we'll have to do it ourselves.
 ### Removing Duplicates with BigQuery
@@ -76,7 +75,7 @@ Now we need to remove the duplicates. You may have seen some SQL queries online 
  ```sql 
 SELECT DISTINCT * FROM `your_table`
 ```
-That would 'work' if we have exact duplicates as in the first example. However, it would effectively mean that the *primary key* is just a unique combination of every column. We have already specified that unique combinations of `first_name` and `last_name` are our keys. Instead, we'll use a window function called `ROW_NUMBER`to calculate unique subjects of our table:
+That would 'work' if we have exact duplicates as in the first example. However, it would effectively mean that the primary key is just a unique combination of every column. We have already specified that unique combinations of `first_name` and `last_name` are our keys. Instead, we'll use a window function called `ROW_NUMBER`to calculate unique subjects of our table:
 
 ```sql
 SELECT *, ROW_NUMBER() OVER(PARTITION BY raw_person.first_name, raw_person.last_name ORDER BY raw_person.date DESC) as row_num
@@ -92,7 +91,9 @@ We can now select all of the records where the `row_num` is equal to 1, and excl
 ```sql
 CREATE OR REPLACE TABLE `person` AS 
 WITH person AS (
-    SELECT *, ROW_NUMBER() OVER(PARTITION BY raw_person.first_name, raw_person.last_name ORDER BY raw_person.date DESC) as row_num
+    SELECT *, ROW_NUMBER() OVER(
+    PARTITION BY raw_person.first_name, raw_person.last_name 
+    ORDER BY raw_person.date DESC) as row_num
 FROM raw_person
 )
 SELECT * EXCEPT(row_num) 
@@ -106,7 +107,7 @@ Now, we get a `person` table that is meaningful to us!
 | id | first_name | last_name | favorite_color| date|
 |----------|----------|----------|----------|----------|
 | 1   | Joshua   | Trusty   | red   | 09-14-2023 |
-| 2   | Misael   | Gonzelez | red   | 09-014-2023 |
+| 2   | Misael   | Gonzelez | red   | 09-14-2023 |
 
 Congratulations! You now know have a general background on what duplicates and keys are, and how to remove duplicates as part of a data pipeline. For more information on the concepts discussed, see the resources section. I have also included an "Extra Credit" section just below if you're looking to extend your skills even further. Thanks for reading. 
 
