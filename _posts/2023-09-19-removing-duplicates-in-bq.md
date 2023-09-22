@@ -18,7 +18,7 @@ First, let's begin by defining what a duplicate is. A simple definition is that 
 |----|------------|-----------|
 | 1  | Joshua     | Trusty    |
 | 1  | Joshua     | Trusty    |
-| 2  | Misael     | Gonzalez  |
+| 2  | [Misael](https://www.linkedin.com/in/misael-salcedo-gonzalez-86812074/)     | [Gonzalez](https://www.linkedin.com/in/misael-salcedo-gonzalez-86812074/)  |
 
 It is obvious that "Joshua Trusty" appears twice in the table, making the those records duplicates. Such *exact duplication* is straightforward to identify, but there are plenty of other cases that are more nuanced.
 
@@ -69,7 +69,7 @@ SELECT * FROM person;
 ```
 Here is a brief explanation of the code block:
 1. `CREATE OR REPLACE TABLE`: This statement creates a new table named `person` or replaces it if it already exists. If the table exists, the data and structure of the existing table will be replaced with the new data and structure defined in the subsequent part of the query. 
-2. `WITH person as (...)` This is a Common Table Expression (CTE) named `person`, which is similar to the table we will be creating. It appears that you are selecting all the data from the `raw_person` table and using it in the CTE.
+2. `WITH person as (...)` This is a [Common Table Expression (CTE)](https://cloud.google.com/bigquery/docs/reference/standard-sql/query-syntax#cte_name) named `person`, which is similar to the table we will be creating. It appears that you are selecting all the data from the `raw_person` table and using it in the CTE.
 
 Now we need to remove the duplicates. You may have seen some SQL queries online that suggest using DISTINCT for deduplication. If you have, you might anticipate replacing the "..." with a statement like:
  ```sql 
@@ -78,7 +78,9 @@ SELECT DISTINCT * FROM `your_table`
 That would 'work' if we have exact duplicates as in the first example. However, it would effectively mean that the primary key is just a unique combination of every column. We have already specified that unique combinations of `first_name` and `last_name` are our keys. Instead, we'll use a window function called `ROW_NUMBER`to calculate unique subjects of our table:
 
 ```sql
-SELECT *, ROW_NUMBER() OVER(PARTITION BY raw_person.first_name, raw_person.last_name ORDER BY raw_person.date DESC) as row_num
+SELECT *, ROW_NUMBER() OVER(PARTITION BY raw_person.first_name, raw_person.last_name 
+                            ORDER BY raw_person.date DESC
+                            ) as row_num
 FROM raw_person
 ```
 Here's an explanation of the code block:
@@ -107,7 +109,7 @@ Now, we get a `person` table that is meaningful to us!
 | id | first_name | last_name | favorite_color| date|
 |----------|----------|----------|----------|----------|
 | 1   | Joshua   | Trusty   | red   | 09-14-2023 |
-| 2   | Misael   | Gonzelez | red   | 09-14-2023 |
+| 2   | Misael   | Gonzalez | red   | 09-14-2023 |
 
 Congratulations! You now know have a general background on what duplicates and keys are, and how to remove duplicates as part of a data pipeline. For more information on the concepts discussed, see the resources section. I have also included an "Extra Credit" section just below if you're looking to extend your skills even further. Thanks for reading. 
 
@@ -116,4 +118,7 @@ Throughout the post, you may have noticed the `id` column/field in the tables. N
 
 ### Resources
 * [Database design for Mere Mortals](https://www.amazon.com/Database-Design-Mere-Mortals-Hands/dp/0201752840)
+* BigQuery documentation on [Common Table Expressions](https://cloud.google.com/bigquery/docs/reference/standard-sql/query-syntax#cte_name)
 * [Extra Credit Solution](https://gist.github.com/nanoman657/c2d7db0210df198190e14ec60e49fe3d)
+
+*Author's Note: Special thanks to [Misael Gonzalez (Sr. Financial Analyst)](https://www.linkedin.com/in/misael-salcedo-gonzalez-86812074/) for his editorial review of this article.*
