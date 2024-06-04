@@ -130,7 +130,7 @@ class Person(Base):
     last_name = sa.Column(sa.String)
     favorite_color = sa.Column(sa.String)
     synced_at = sa.Column(
-        sa.DateTime(timezone=True),
+        sa.TIMESTAMP,
         server_default=sa.func.current_timestamp(),
     )
 
